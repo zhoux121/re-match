@@ -1,24 +1,18 @@
 import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
-img1 = cv.imread('book_1.jpg',cv.IMREAD_GRAYSCALE)          # queryImage
-img2 = cv.imread('book_2.jpg',cv.IMREAD_GRAYSCALE) # trainImage
+
+img1 = cv.imread('1403636580463555584.png',cv.IMREAD_GRAYSCALE) # queryImage
+img2 = cv.imread('1403636762363555584.png',cv.IMREAD_GRAYSCALE) # trainImage
 # Initiate SIFT detector
-sum = 0
-import time
-for i in range(15):
+sift = cv.SIFT_create()
+# find the keypoints and descriptors with SIFT
+kp1, des1 = sift.detectAndCompute(img1,None)
+kp2, des2 = sift.detectAndCompute(img2,None)
 
-    start_time = time.time()
-    sift = cv.SIFT_create()
-    # find the keypoints and descriptors with SIFT
-    kp1, des1 = sift.detectAndCompute(img1,None)
-    kp2, des2 = sift.detectAndCompute(img2,None)
-
-    # BFMatcher with default params
-    bf = cv.BFMatcher()
-    matches = bf.knnMatch(des1,des2,k=2)
-    if i >= 5:
-        sum+=(time.time() - start_time)
+# BFMatcher with default params
+bf = cv.BFMatcher()
+matches = bf.knnMatch(des1,des2,k=2)
 
 # Apply ratio test
 good = []
@@ -26,8 +20,5 @@ for m,n in matches:
     if m.distance < 0.75*n.distance:
         good.append([m])
 # cv.drawMatchesKnn expects list of lists as matches.
-print(sum/10)
-print(len(good))
-print(len(good)/len(matches))
 img3 = cv.drawMatchesKnn(img1,kp1,img2,kp2,good,None,flags=cv.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
 plt.imshow(img3),plt.show()
